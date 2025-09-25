@@ -5,6 +5,7 @@ import os
 def parse_list(ctx, param, value: str) -> list[str] | None:
     return [x.strip() for x in value.split(",")] if value else None
 
+
 def silence_kedro_logs():
     """Disable Kedro logging so stdout is fully under our control."""
     # Prevent Kedro from loading conf/logging.yml

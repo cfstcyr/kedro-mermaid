@@ -87,6 +87,12 @@ from kedro_mermaid.lib.utils import parse_list
     default="diagram",
     help="Output format. Currently only 'mermaid' is supported.",
 )
+@click.option(
+    "--set-format-attr",
+    "format_attrs",
+    multiple=True,
+    help="Set format-specific attributes depending on the chosen output format.",
+)
 @click.pass_obj
 def generate(
     metadata: ProjectMetadata,
@@ -102,6 +108,7 @@ def generate(
     edge_attrs: list[str],
     node_attrs: list[str],
     output_format: str,
+    format_attrs: list[str] | None,
 ):
     pipeline = cast(Pipeline | None, pipelines.get(pipeline_name))
 
@@ -133,4 +140,10 @@ def generate(
         node_attrs=OmegaConf.from_dotlist(node_attrs),
     ).simplify()
 
-    DIAGRAM_OUTPUTS[output_format](graph)
+    format_attrs_dict = cast(
+        dict,
+        OmegaConf.to_container(
+            OmegaConf.from_dotlist(format_attrs or []), resolve=True
+        ),
+    )
+    DIAGRAM_OUTPUTS[output_format](graph, **format_attrs_dict)

@@ -15,6 +15,7 @@ from kedro_mermaid.lib.parsed_name import ParsedName, ParsedValue
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class DiagramNode:
     name: str
@@ -33,9 +34,9 @@ class DiagramNode:
 
     def should_include(self) -> bool:
         return self.parsed_name.is_match
-    
+
     def to_mermaid_declaration(self) -> str:
-        return f"{self.id}@{json.dumps({ **self.params, 'label': self.parsed_name.name.label })}"
+        return f"{self.id}@{json.dumps({**self.params, 'label': self.parsed_name.name.label})}"
 
     def __lt__(self, other) -> bool:
         if not isinstance(other, DiagramNode):
@@ -65,7 +66,7 @@ class DiagramEdge:
         label = params.pop("label", None)
 
         if label:
-            arrow = f"{arrow}|\"{label}\"|"
+            arrow = f'{arrow}|"{label}"|'
 
         lines = [f"{self.source.id} {edge_id}@{arrow} {self.target.id}"]
 
@@ -77,7 +78,11 @@ class DiagramEdge:
     def __lt__(self, other) -> bool:
         if not isinstance(other, DiagramEdge):
             return NotImplemented
-        return self.source < other.source if self.source != other.source else self.target < other.target
+        return (
+            self.source < other.source
+            if self.source != other.source
+            else self.target < other.target
+        )
 
 
 @dataclass
@@ -147,27 +152,27 @@ class DiagramGraph:
                 level=9,
             )
         ).decode("ascii")
-    
+
     def all_nodes(self) -> set[DiagramNode]:
         nodes = set()
         for edge in self.edges:
             nodes.add(edge.source)
             nodes.add(edge.target)
         return nodes
-    
+
     def _collect_sources(self) -> dict[str, list[DiagramNode]]:
         sources = defaultdict(list)
         for edge in self.edges:
             sources[edge.source.id].append(edge.target)
         return sources
-    
+
     def _collect_categories(self) -> dict[ParsedValue, list[DiagramNode]]:
         categories = defaultdict(list)
         for node in self.all_nodes():
             if node.parsed_name.category:
                 categories[node.parsed_name.category].append(node)
         return categories
-    
+
     def _find_immediate_final_nodes(
         self,
         current: DiagramNode,
@@ -208,7 +213,7 @@ class DiagramGraph:
             )
 
         return reachable
-    
+
     def simplify(self) -> "DiagramGraph":
         sources = self._collect_sources()
 
@@ -243,7 +248,9 @@ class DiagramGraph:
             reachable_finals.discard(final_node)
 
             for dest_final in reachable_finals:
-                simplified_edges.append(DiagramEdge(final_node, dest_final, **self.edge_attrs))
+                simplified_edges.append(
+                    DiagramEdge(final_node, dest_final, **self.edge_attrs)
+                )
 
         return DiagramGraph(
             edges=simplified_edges,
@@ -265,23 +272,31 @@ class DiagramGraph:
         ]
 
         # Add nodes
-        lines.extend(f"\t{node.to_mermaid_declaration()}" for node in sorted(self.all_nodes()))
+        lines.extend(
+            f"\t{node.to_mermaid_declaration()}" for node in sorted(self.all_nodes())
+        )
 
         # Add edges
         for index, edge in enumerate(sorted(self.edges)):
-            lines.extend([f"\t{line}" for line in edge.to_mermaid_declaration(index=index)])
+            lines.extend(
+                [f"\t{line}" for line in edge.to_mermaid_declaration(index=index)]
+            )
 
-        for index, (category, nodes) in enumerate(sorted(self._collect_categories().items())):
+        for index, (category, nodes) in enumerate(
+            sorted(self._collect_categories().items())
+        ):
             color, bgcolor = self.colors[index % len(self.colors)]
             class_name = f"cat_{category.id}"
-            
-            lines.extend([
-                f"subgraph {category.id}[\"{category.label}\"]",
-                f"\tstyle {category.id} fill:{bgcolor},stroke:{color},stroke-width:2px",
-                f"\tclassDef {class_name} fill:{color},stroke:{color},stroke-width:2px",
-                *[f"\t{node.id}:::{class_name}" for node in nodes],
-                "end",
-            ])
+
+            lines.extend(
+                [
+                    f'subgraph {category.id}["{category.label}"]',
+                    f"\tstyle {category.id} fill:{bgcolor},stroke:{color},stroke-width:2px",
+                    f"\tclassDef {class_name} fill:{color},stroke:{color},stroke-width:2px",
+                    *[f"\t{node.id}:::{class_name}" for node in sorted(nodes)],
+                    "end",
+                ]
+            )
 
         return "\n".join(lines)
 

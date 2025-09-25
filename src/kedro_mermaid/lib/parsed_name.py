@@ -11,12 +11,12 @@ class ParsedValue:
     id: str
     label: str
     levels: list[str]
-    
+
     def __lt__(self, other) -> bool:
         if not isinstance(other, ParsedValue):
             return NotImplemented
         return self.id < other.id
-    
+
     def __hash__(self) -> int:
         return hash(self.id)
 
@@ -27,6 +27,7 @@ class ParsedValue:
             label=" ".join([level.capitalize() for level in levels]),
             levels=levels,
         )
+
 
 @dataclass(frozen=True)
 class ParsedName:
@@ -57,12 +58,12 @@ class ParsedName:
     ) -> "ParsedName":
         if not pattern:
             return cls.from_name(name, is_match=True)
-        
+
         match = regex.search(pattern, name)
 
         if not match:
             return cls.from_name(name, is_match=False)
-        
+
         captures = match.capturesdict()
 
         if LEVEL_REGEX_GROUP in captures or CATEGORY_REGEX_GROUP in captures:
@@ -70,7 +71,9 @@ class ParsedName:
             categories = captures.get(CATEGORY_REGEX_GROUP, [])
 
             if not levels:
-                raise ValueError(f"Pattern {pattern} did not capture any {LEVEL_REGEX_GROUP} from name {name}. Make sure to use a named capture group '{LEVEL_REGEX_GROUP}'.")
+                raise ValueError(
+                    f"Pattern {pattern} did not capture any {LEVEL_REGEX_GROUP} from name {name}. Make sure to use a named capture group '{LEVEL_REGEX_GROUP}'."
+                )
 
             return cls(
                 original_name=name,
@@ -78,7 +81,7 @@ class ParsedName:
                 name=ParsedValue.from_levels(levels),
                 category=ParsedValue.from_levels(categories) if categories else None,
             )
-        
+
         index = 1
         ended = False
         levels: list[str] = []
