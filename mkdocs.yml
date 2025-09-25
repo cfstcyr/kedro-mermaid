@@ -1,0 +1,10 @@
+site_name: Kedro Mermaid
+
+theme:
+  name: shadcn
+  show_title: true
+  icon: heroicons:presentation-chart-line
+
+markdown_extensions:
+  - admonition
+  - codehilite
