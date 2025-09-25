@@ -24,24 +24,24 @@ def encoded_output(func: DiagramEncodedOutputFunction) -> DiagramOutputFunction:
     return wrapper
 
 
-def get_diagram(diagram_graph: DiagramGraph, **kwargs) -> None:
+def get_diagram(diagram_graph: DiagramGraph) -> None:
     diagram_str = diagram_graph.render()
     click.echo(diagram_str)
 
 
-def get_encoded_diagram(encoded_diagram: str, **kwargs) -> None:
+def get_encoded_diagram(encoded_diagram: str) -> None:
     click.echo(encoded_diagram)
 
 
-def get_image_url(encoded_diagram: str, *, url: str = IMAGE_URL, **kwargs) -> None:
+def get_image_url(encoded_diagram: str, *, url: str = IMAGE_URL) -> None:
     click.echo(url.format(diagram=encoded_diagram))
 
 
-def get_edit_url(encoded_diagram: str, *, url: str = EDIT_URL, **kwargs) -> None:
+def get_edit_url(encoded_diagram: str, *, url: str = EDIT_URL) -> None:
     click.echo(url.format(diagram=encoded_diagram))
 
 
-def get_view_url(encoded_diagram: str, *, url: str = VIEW_URL, **kwargs) -> None:
+def get_view_url(encoded_diagram: str, *, url: str = VIEW_URL) -> None:
     click.echo(url.format(diagram=encoded_diagram))
 
 
@@ -53,7 +53,6 @@ def insert_to_file(
     marker: str = "kedro-mermaid",
     marker_start_format: str = "<!-- DIAGRAM:START:{marker} -->",
     marker_end_format: str = "<!-- DIAGRAM:END:{marker} -->",
-    **kwargs,
 ) -> None:
     marker_start = marker_start_format.format(marker=marker)
     marker_end = marker_end_format.format(marker=marker)
@@ -100,7 +99,7 @@ def insert_to_file(
     click.echo(f"Diagram inserted into file '{file_path}'.")
 
 
-DIAGRAM_OUTPUTS: dict[str, DiagramOutputFunction] = {
+DIAGRAM_OUTPUTS = {
     "diagram": get_diagram,
     "encoded": encoded_output(get_encoded_diagram),
     "image_url": encoded_output(get_image_url),
