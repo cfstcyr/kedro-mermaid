@@ -34,15 +34,15 @@ def get_encoded_diagram(encoded_diagram: str, **kwargs) -> None:
 
 
 def get_image_url(encoded_diagram: str, *, url: str = IMAGE_URL, **kwargs) -> None:
-    click.echo(url.format(encoded_diagram=encoded_diagram))
+    click.echo(url.format(diagram=encoded_diagram))
 
 
 def get_edit_url(encoded_diagram: str, *, url: str = EDIT_URL, **kwargs) -> None:
-    click.echo(url.format(encoded_diagram=encoded_diagram))
+    click.echo(url.format(diagram=encoded_diagram))
 
 
 def get_view_url(encoded_diagram: str, *, url: str = VIEW_URL, **kwargs) -> None:
-    click.echo(url.format(encoded_diagram=encoded_diagram))
+    click.echo(url.format(diagram=encoded_diagram))
 
 
 def insert_to_file(
